@@ -1,0 +1,2724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FleetForge — Logistics Software for Fleet Operators & Transport Companies</title>
+<meta name="description" content="Custom logistics software for transport companies, fleet operators, and delivery businesses. Replace Excel and WhatsApp with real-time fleet tracking, automated invoicing, and driver management." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy: #0A0F1E;
+  --navy-mid: #111827;
+  --navy-soft: #1C2640;
+  --accent: #F4A31A;
+  --accent-dim: #D18B10;
+  --accent-glow: rgba(244,163,26,0.12);
+  --steel: #4A6FA5;
+  --steel-light: #6B8FC4;
+  --text-primary: #F0F4FF;
+  --text-secondary: #94A3BF;
+  --text-muted: #5A6880;
+  --border: rgba(255,255,255,0.07);
+  --border-accent: rgba(244,163,26,0.25);
+  --card-bg: rgba(255,255,255,0.04);
+  --card-hover: rgba(255,255,255,0.07);
+  --green: #22C55E;
+  --radius: 12px;
+  --radius-lg: 20px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family:'Inter',sans-serif;
+  background: var(--navy);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(74,111,165,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,111,165,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* â”€â”€â”€ NAV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+nav {
+  position: fixed; top: 0; width: 100%; z-index: 200;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10,15,30,0.88);
+  backdrop-filter: blur(20px);
+}
+.nav-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 40px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:22px; letter-spacing:-0.5px; color:var(--text-primary); }
+.logo span { color: var(--accent); }
+.nav-links { display:flex; align-items:center; gap:36px; list-style:none; }
+.nav-links a { font-size:14px; font-weight:500; color:var(--text-secondary); text-decoration:none; transition:color 0.2s; }
+.nav-links a:hover { color: var(--text-primary); }
+.nav-cta { background:var(--accent); color:var(--navy) !important; padding:10px 22px; border-radius:8px; font-weight:600 !important; font-size:14px !important; transition:background 0.2s, transform 0.15s !important; }
+.nav-cta:hover { background:#FFBA3A !important; transform:translateY(-1px); }
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.2s, background 0.2s;
+}
+.nav-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+}
+.nav-toggle-bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+nav.is-menu-open .nav-toggle-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+nav.is-menu-open .nav-toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+nav.is-menu-open .nav-toggle-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+}
+
+body.nav-menu-open {
+  overflow: hidden;
+}
+
+/* UTILS */
+section { position:relative; z-index:1; }
+.container { max-width:1200px; margin:0 auto; padding:0 40px; }
+.section-label { font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
+.section-h2 { font-family:'Space Grotesk',sans-serif; font-size:clamp(30px,4vw,50px); font-weight:700; line-height:1.12; letter-spacing:-1px; margin-bottom:20px; }
+.section-desc { font-size:17px; color:var(--text-secondary); max-width:560px; line-height:1.75; }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes moveTruck { from{left:15%;top:55%} to{left:72%;top:22%} }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* â”€â”€â”€ HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:140px 0 80px; overflow:hidden; }
+.hero-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--accent-glow); border:1px solid var(--border-accent);
+  border-radius:100px; padding:7px 18px; font-size:13px; font-weight:500;
+  color:var(--accent); margin-bottom:28px; width:fit-content;
+  animation:fadeUp 0.6s ease both;
+}
+.hero-badge-dot { width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pulse 2s ease infinite; }
+.hero h1 {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(44px,6.5vw,82px);
+  font-weight:800; line-height:1.01; letter-spacing:-2px;
+  margin-bottom:28px; animation:fadeUp 0.6s 0.1s ease both;
+}
+.hero h1 em { font-style:normal; color:var(--accent); position:relative; }
+.hero h1 em::after { content:''; position:absolute; bottom:2px; left:0; right:0; height:3px; background:var(--accent); opacity:0.25; border-radius:2px; }
+.hero-sub { font-size:19px; font-weight:300; color:var(--text-secondary); max-width:580px; margin-bottom:44px; line-height:1.75; animation:fadeUp 0.6s 0.2s ease both; }
+.hero-actions { display:flex; align-items:center; gap:20px; flex-wrap:wrap; animation:fadeUp 0.6s 0.3s ease both; }
+
+.btn-primary {
+  display:inline-flex; align-items:center; gap:10px;
+  background:var(--accent); color:var(--navy);
+  font-family:'Inter',sans-serif; font-size:16px; font-weight:600;
+  padding:16px 32px; border-radius:10px; border:none; cursor:pointer;
+  text-decoration:none; transition:background 0.2s, transform 0.15s; letter-spacing:0.2px;
+}
+.btn-primary:hover { background:#FFBA3A; transform:translateY(-2px); }
+.btn-secondary { display:inline-flex; align-items:center; gap:8px; color:var(--text-secondary); font-size:15px; font-weight:400; text-decoration:none; transition:color 0.2s; }
+.btn-secondary:hover { color:var(--text-primary); }
+.btn-arrow { font-size:18px; transition:transform 0.2s; }
+.btn-secondary:hover .btn-arrow { transform:translateX(4px); }
+.btn-ghost {
+  display:inline-flex; align-items:center; gap:8px;
+  background:transparent; color:var(--text-secondary);
+  font-family:'Inter',sans-serif; font-size:15px; font-weight:500;
+  padding:14px 28px; border-radius:10px; border:1px solid var(--border);
+  cursor:pointer; text-decoration:none; transition:border-color 0.2s,color 0.2s;
+}
+.btn-ghost:hover { border-color:rgba(255,255,255,0.2); color:var(--text-primary); }
+
+.hero-stats { display:flex; gap:48px; margin-top:64px; padding-top:36px; border-top:1px solid var(--border); animation:fadeUp 0.6s 0.4s ease both; flex-wrap:wrap; }
+.stat-num { font-family:'Space Grotesk',sans-serif; font-size:34px; font-weight:700; letter-spacing:-1px; }
+.stat-num span { color:var(--accent); }
+.stat-label { font-size:13px; color:var(--text-muted); margin-top:3px; }
+
+/* Dashboard */
+.hero-visual { position:absolute; right:-50px; top:50%; transform:translateY(-48%); width:560px; animation:fadeUp 0.8s 0.35s ease both; pointer-events:none; }
+.dash-frame {
+  background:var(--navy-soft); border:1px solid rgba(74,111,165,0.22); border-radius:20px; padding:22px;
+  box-shadow:0 40px 120px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04); position:relative; overflow:hidden;
+}
+.dash-frame::before { content:''; position:absolute; top:-80px; right:-80px; width:280px; height:280px; background:radial-gradient(circle,rgba(244,163,26,0.07) 0%,transparent 70%); pointer-events:none; }
+.dash-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.dash-title { font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:600; color:var(--text-secondary); letter-spacing:0.8px; text-transform:uppercase; }
+.dash-live { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--green); font-weight:500; }
+.live-dot { width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s ease infinite; }
+.dash-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+.metric-card { background:var(--navy); border:1px solid var(--border); border-radius:10px; padding:13px 14px; }
+.metric-label { font-size:10px; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.5px; }
+.metric-val { font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; color:var(--text-primary); }
+.metric-change { font-size:10px; color:var(--green); margin-top:3px; }
+.dash-map { background:var(--navy); border:1px solid var(--border); border-radius:10px; padding:14px; height:148px; position:relative; overflow:hidden; }
+.map-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(74,111,165,0.09) 1px,transparent 1px),linear-gradient(90deg,rgba(74,111,165,0.09) 1px,transparent 1px); background-size:28px 28px; }
+.truck-dot { position:absolute; width:10px;height:10px;background:var(--accent);border-radius:50%;box-shadow:0 0 0 4px rgba(244,163,26,0.18);animation:moveTruck 4s ease-in-out infinite alternate; z-index:2; }
+.dest-dot { position:absolute; width:8px;height:8px;background:var(--green);border-radius:50%;right:22%;bottom:28%; z-index:2; }
+.route-line { position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.28; }
+.dash-trips { margin-top:10px; display:flex; flex-direction:column; gap:7px; }
+.trip-row { display:flex;align-items:center;justify-content:space-between;background:var(--navy);border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:12px; }
+.trip-id { font-weight:500; color:var(--text-secondary); }
+.trip-route { color:var(--text-primary); }
+.trip-status { font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px; }
+.status-active { background:rgba(34,197,94,0.12);color:var(--green); }
+.status-transit { background:rgba(244,163,26,0.12);color:var(--accent); }
+.status-done { background:rgba(74,111,165,0.15);color:var(--steel-light); }
+
+/* â”€â”€â”€ TECH STRIP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.tech-strip { padding:44px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); position:relative;z-index:1; }
+.tech-label { text-align:center;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:24px; }
+.tech-logos { display:flex;justify-content:center;align-items:center;gap:40px;flex-wrap:wrap; }
+.tech-pill { display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--text-muted);padding:7px 16px;border:1px solid var(--border);border-radius:100px;transition:color 0.2s,border-color 0.2s; }
+.tech-pill:hover { color:var(--text-secondary);border-color:rgba(255,255,255,0.14); }
+.tech-dot { width:7px;height:7px;border-radius:50%; }
+
+/* â”€â”€â”€ PROBLEM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.problem { padding:120px 0; }
+.problem-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px; }
+.problem-card { background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:30px 26px;transition:background 0.2s,border-color 0.2s,transform 0.2s;cursor:default; }
+.problem-card:hover { background:var(--card-hover);border-color:rgba(244,163,26,0.18);transform:translateY(-4px); }
+.problem-icon { width:44px;height:44px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;background:rgba(244,163,26,0.09);border:1px solid rgba(244,163,26,0.18);border-radius:10px;padding:10px;flex-shrink:0; }
+.problem-icon svg { width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+.problem-title { font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;margin-bottom:9px;color:var(--text-primary); }
+.problem-desc { font-size:14px;color:var(--text-secondary);line-height:1.65; }
+
+/* â”€â”€â”€ WHO WE WORK WITH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.who { padding:120px 0; background:var(--navy-mid); }
+.who-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:56px; }
+.who-card {
+  background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:28px 30px;
+  display:flex; gap:20px; align-items:flex-start; transition:background 0.2s,border-color 0.2s,transform 0.2s; cursor:default;
+}
+.who-card:hover { background:var(--card-hover);border-color:rgba(74,111,165,0.3);transform:translateY(-3px); }
+.who-check { width:36px;height:36px;background:var(--accent-glow);border:1px solid var(--border-accent);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;padding:8px; }
+.who-check svg { width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+.who-title { font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;margin-bottom:7px;color:var(--text-primary); }
+.who-desc { font-size:14px;color:var(--text-secondary);line-height:1.6; }
+.who-footer { margin-top:52px;background:var(--accent-glow);border:1px solid var(--border-accent);border-radius:var(--radius);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px; }
+.who-footer-text { font-size:15px;color:var(--accent);font-weight:500; }
+
+/* â”€â”€â”€ SOLUTIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.solutions { padding:120px 0; }
+.solutions-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:56px; }
+.solution-card { background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:34px 30px;display:flex;gap:22px;transition:background 0.2s,border-color 0.2s,transform 0.2s;cursor:default; }
+.solution-card:hover { background:rgba(74,111,165,0.06);border-color:rgba(74,111,165,0.28);transform:translateY(-3px); }
+.solution-icon-wrap { width:50px;height:50px;background:rgba(244,163,26,0.09);border:1px solid rgba(244,163,26,0.18);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:12px; }
+.solution-icon-wrap svg { width:24px;height:24px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+.solution-title { font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;margin-bottom:9px; }
+.solution-desc { font-size:14px;color:var(--text-secondary);line-height:1.65; }
+.solution-tags { display:flex;flex-wrap:wrap;gap:7px;margin-top:14px; }
+.tag { font-size:11px;font-weight:500;padding:4px 12px;border-radius:100px;background:rgba(74,111,165,0.1);color:var(--steel-light);border:1px solid rgba(74,111,165,0.18);letter-spacing:0.3px; }
+
+/* â”€â”€â”€ CASE STUDIES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.cases { padding:120px 0; background:var(--navy-mid); }
+.case-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:28px;margin-top:56px; }
+.case-card { background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px 32px; }
+.case-card-tag { display:inline-block;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);background:var(--accent-glow);border:1px solid var(--border-accent);padding:4px 14px;border-radius:100px;margin-bottom:20px; }
+.case-title { font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:10px;letter-spacing:-0.5px; }
+.case-context { font-size:14px;color:var(--text-secondary);line-height:1.65;margin-bottom:24px; }
+.case-outcomes { display:flex;flex-direction:column;gap:12px; }
+.case-outcome { display:flex;gap:14px;align-items:flex-start; }
+.case-outcome-arrow { color:var(--accent);font-size:16px;margin-top:1px;flex-shrink:0;font-weight:700; }
+.case-outcome-text { font-size:14px;color:var(--text-secondary);line-height:1.6; }
+.case-outcome-text strong { color:var(--text-primary);font-weight:600; }
+.case-divider { margin:24px 0; border:none; border-top:1px solid var(--border); }
+.case-metrics { display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:24px; }
+.case-metric-val { font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;color:var(--accent);letter-spacing:-1px; }
+.case-metric-label { font-size:12px;color:var(--text-muted);margin-top:3px; }
+
+/* â”€â”€â”€ WHY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.why { padding:120px 0; }
+.why-layout { display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;margin-top:56px; }
+.why-list { display:flex;flex-direction:column;gap:24px; }
+.why-item { display:flex;gap:18px;align-items:flex-start; }
+.why-num { width:36px;height:36px;background:var(--accent-glow);border:1px solid var(--border-accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0; }
+.why-text h4 { font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;margin-bottom:6px; }
+.why-text p { font-size:14px;color:var(--text-secondary);line-height:1.65; }
+.why-proof { background:var(--navy-soft);border:1px solid rgba(74,111,165,0.2);border-radius:var(--radius-lg);padding:32px;position:sticky;top:120px; }
+.proof-metric { padding:18px 0;border-bottom:1px solid var(--border); }
+.proof-metric:last-child { border-bottom:none;padding-bottom:0; }
+.proof-metric:first-child { padding-top:0; }
+.proof-val { font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:700;color:var(--accent);letter-spacing:-1px; }
+.proof-label { font-size:14px;color:var(--text-primary);font-weight:500;margin-top:4px; }
+.proof-sub { font-size:12px;color:var(--text-muted);margin-top:2px;line-height:1.5; }
+
+/* â”€â”€â”€ FOUNDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.founder { padding:120px 0; background:var(--navy-mid); }
+.founder-layout { display:grid;grid-template-columns:1fr 1.6fr;gap:72px;align-items:center;margin-top:56px; }
+.founder-photo-frame { background:var(--navy-soft);border:1px solid rgba(74,111,165,0.2);border-radius:var(--radius-lg);aspect-ratio:4/5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:32px; }
+.founder-avatar-placeholder { width:96px;height:96px;border-radius:50%;background:rgba(74,111,165,0.15);border:2px solid rgba(74,111,165,0.3);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:var(--steel-light); }
+.founder-photo-label { font-size:13px;color:var(--text-muted);line-height:1.6; }
+.founder-content {}
+.founder-name { font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin-bottom:6px;letter-spacing:-0.5px; }
+.founder-role { font-size:14px;color:var(--accent);font-weight:500;margin-bottom:24px; }
+.founder-bio { font-size:16px;color:var(--text-secondary);line-height:1.75;margin-bottom:28px; }
+.founder-bio p+p { margin-top:14px; }
+.founder-credentials { display:flex;flex-direction:column;gap:10px; }
+.credential { display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--text-secondary); }
+.credential-dot { width:6px;height:6px;background:var(--accent);border-radius:50%;flex-shrink:0;margin-top:7px; }
+
+/* â”€â”€â”€ WORKFLOW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.workflow { padding:120px 0; }
+.workflow-steps { display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:56px;position:relative; }
+.workflow-steps::before { content:'';position:absolute;top:27px;left:calc(10% + 27px);right:calc(10% + 27px);height:1px;background:linear-gradient(90deg,var(--accent),var(--steel),var(--accent));opacity:0.25; }
+.step-item { display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 10px;position:relative; }
+.step-num { width:54px;height:54px;background:var(--navy-soft);border:1px solid rgba(244,163,26,0.28);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--accent);margin-bottom:18px;flex-shrink:0;position:relative;z-index:1; }
+.step-title { font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;margin-bottom:7px;color:var(--text-primary); }
+.step-desc { font-size:13px;color:var(--text-secondary);line-height:1.6; }
+
+/* â”€â”€â”€ AFTER CALL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.after-call { padding:80px 0;background:var(--navy-mid); }
+.after-call-inner { background:var(--navy-soft);border:1px solid rgba(74,111,165,0.2);border-radius:var(--radius-lg);padding:48px 52px;max-width:880px;margin:40px auto 0; }
+.after-call-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:36px; }
+.after-item { display:flex;gap:16px;align-items:flex-start; }
+.after-icon { width:40px;height:40px;background:var(--accent-glow);border:1px solid var(--border-accent);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:9px; }
+.after-icon svg { width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+.after-item h4 { font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text-primary); }
+.after-item p { font-size:13px;color:var(--text-secondary);line-height:1.6; }
+
+/* â”€â”€â”€ OPERATIONAL PROOF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.ops-proof { padding:120px 0; }
+.ops-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:56px; }
+.ops-card { background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:30px 26px; }
+.ops-card-icon { width:44px;height:44px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;background:rgba(244,163,26,0.09);border:1px solid rgba(244,163,26,0.18);border-radius:10px;padding:10px;flex-shrink:0; }
+.ops-card-icon svg { width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+.ops-problem { font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:10px; }
+.ops-headline { font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:12px;line-height:1.3; }
+.ops-before { font-size:13px;color:var(--text-muted);line-height:1.6;padding:10px 14px;background:rgba(255,255,255,0.03);border-left:2px solid var(--text-muted);border-radius:0 6px 6px 0;margin-bottom:10px; }
+.ops-arrow { color:var(--accent);font-size:16px;margin:8px 0;font-weight:700;display:block; }
+.ops-after { font-size:13px;color:var(--green);line-height:1.6;padding:10px 14px;background:rgba(34,197,94,0.05);border-left:2px solid var(--green);border-radius:0 6px 6px 0; }
+.ops-metric { margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;align-items:baseline;gap:8px; }
+.ops-metric-val { font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--accent);letter-spacing:-0.5px; }
+.ops-metric-label { font-size:13px;color:var(--text-muted); }
+
+/* â”€â”€â”€ CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.cta-section { padding:120px 0;background:var(--navy-mid);position:relative;overflow:hidden; }
+.cta-section::before { content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(244,163,26,0.06) 0%,transparent 70%);pointer-events:none; }
+.cta-inner { text-align:center;max-width:700px;margin:0 auto;position:relative;z-index:1; }
+.cta-inner .section-h2 { font-size:clamp(34px,5vw,58px); }
+.cta-inner .section-desc { margin:0 auto 40px; }
+.cta-actions { display:flex;gap:16px;justify-content:center;flex-wrap:wrap; }
+.cta-trust-row { display:flex;align-items:center;justify-content:center;gap:28px;margin-top:32px;flex-wrap:wrap; }
+.cta-trust-item { font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:7px; }
+.cta-trust-item::before { content:'âœ“';color:var(--green);font-weight:700; }
+
+/* â”€â”€â”€ FOOTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+footer { padding:40px 0;border-top:1px solid var(--border);position:relative;z-index:1; }
+.footer-inner { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px; }
+.footer-copy { font-size:13px;color:var(--text-muted); }
+.footer-links { display:flex;gap:24px;flex-wrap:wrap; }
+.footer-links a { font-size:13px;color:var(--text-muted);text-decoration:none;transition:color 0.2s; }
+.footer-links a:hover { color:var(--text-secondary); }
+
+/* â”€â”€â”€ WHATSAPP FLOAT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.wa-float {
+  position:fixed; bottom:32px; right:32px; z-index:999;
+  display:flex; align-items:center; gap:0;
+  background:#25D366; border-radius:100px;
+  box-shadow:0 4px 24px rgba(37,211,102,0.35);
+  cursor:pointer; text-decoration:none;
+  overflow:hidden; transition:gap 0.3s,padding-right 0.3s;
+  padding:14px 14px;
+}
+.wa-float:hover { gap:10px; padding-right:20px; }
+.wa-icon { width:26px;height:26px;flex-shrink:0;display:block; }
+.wa-text { font-size:14px;font-weight:600;color:#fff;white-space:nowrap;max-width:0;overflow:hidden;transition:max-width 0.3s; }
+.wa-float:hover .wa-text { max-width:200px; }
+
+/* â”€â”€â”€ STRATEGY CALL MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+body.modal-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
+.strategy-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  background: rgba(5, 8, 18, 0.82);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.strategy-modal-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.strategy-modal {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  margin: auto;
+  background: linear-gradient(165deg, rgba(28, 38, 64, 0.95) 0%, rgba(10, 15, 30, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(244, 163, 26, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transform: translateY(24px) scale(0.97);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.strategy-modal-overlay.is-open .strategy-modal {
+  transform: translateY(0) scale(1);
+}
+
+.strategy-form-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+}
+
+.strategy-modal::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  right: -80px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(244, 163, 26, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.strategy-modal-header {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  padding: 28px 28px 0;
+  padding-top: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.strategy-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 50;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 15, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.strategy-modal-close:hover,
+.strategy-modal-close:focus-visible {
+  background: rgba(244, 163, 26, 0.15);
+  color: var(--accent);
+  border-color: var(--border-accent);
+  outline: none;
+}
+.strategy-modal-close:active {
+  transform: scale(0.96);
+}
+
+.strategy-modal-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.strategy-modal-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(22px, 4vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  padding-right: 52px;
+}
+
+.strategy-modal-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 24px;
+}
+
+.strategy-progress {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 4px;
+}
+
+.strategy-progress-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  text-align: center;
+}
+
+.strategy-progress-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: calc(50% + 18px);
+  width: calc(100% - 36px);
+  height: 2px;
+  background: var(--border);
+  transition: background 0.35s ease;
+}
+
+.strategy-progress-step.is-complete:not(:last-child)::after {
+  background: var(--accent);
+}
+
+.strategy-progress-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--navy-soft);
+  border: 2px solid var(--border);
+  color: var(--text-muted);
+  position: relative;
+  z-index: 1;
+  transition: border-color 0.3s, background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.strategy-progress-step.is-active .strategy-progress-dot,
+.strategy-progress-step.is-complete .strategy-progress-dot {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+.strategy-progress-step.is-active .strategy-progress-dot {
+  box-shadow: 0 0 0 4px rgba(244, 163, 26, 0.15);
+}
+
+.strategy-progress-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-top: 8px;
+  line-height: 1.3;
+  max-width: 72px;
+  transition: color 0.3s;
+}
+
+.strategy-progress-step.is-active .strategy-progress-label,
+.strategy-progress-step.is-complete .strategy-progress-label {
+  color: var(--text-secondary);
+}
+
+.strategy-progress-step.is-active .strategy-progress-label {
+  color: var(--accent);
+}
+
+.strategy-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 28px 8px;
+  position: relative;
+  z-index: 1;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(244, 163, 26, 0.35) transparent;
+}
+.strategy-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.strategy-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(244, 163, 26, 0.35);
+  border-radius: 100px;
+}
+
+.strategy-form-panel {
+  display: none;
+  animation: strategyFadeIn 0.4s ease both;
+}
+
+.strategy-form-panel.is-active {
+  display: block;
+}
+
+@keyframes strategyFadeIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.strategy-form-panel.is-back {
+  animation: strategyFadeInBack 0.4s ease both;
+}
+
+@keyframes strategyFadeInBack {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.strategy-field {
+  margin-bottom: 18px;
+}
+
+.strategy-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.strategy-field label .req {
+  color: var(--accent);
+  margin-left: 2px;
+}
+
+.strategy-field input,
+.strategy-field select,
+.strategy-field textarea {
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--text-primary);
+  background: rgba(10, 15, 30, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  appearance: none;
+}
+
+.strategy-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3BF' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+.strategy-field textarea {
+  min-height: 96px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.strategy-field input:focus,
+.strategy-field select:focus,
+.strategy-field textarea:focus {
+  outline: none;
+  border-color: var(--border-accent);
+  box-shadow: 0 0 0 3px rgba(244, 163, 26, 0.1);
+  background: rgba(10, 15, 30, 0.85);
+}
+
+.strategy-field input::placeholder,
+.strategy-field textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.strategy-field.has-error input,
+.strategy-field.has-error select,
+.strategy-field.has-error textarea {
+  border-color: rgba(239, 68, 68, 0.6);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+.strategy-field-error {
+  font-size: 12px;
+  color: #F87171;
+  margin-top: 6px;
+  display: none;
+}
+
+.strategy-field.has-error .strategy-field-error {
+  display: block;
+}
+
+.strategy-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.strategy-modal-footer {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  padding: 16px 28px 28px;
+  display: flex;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  background: rgba(10, 15, 30, 0.5);
+}
+
+.strategy-btn-back {
+  flex: 0 0 auto;
+  padding: 14px 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  display: none;
+}
+
+.strategy-btn-back.is-visible {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.strategy-btn-back:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+}
+
+.strategy-btn-next {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--navy);
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, opacity 0.2s;
+}
+
+.strategy-btn-next:hover:not(:disabled) {
+  background: #FFBA3A;
+  transform: translateY(-1px);
+}
+
+.strategy-btn-next:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.strategy-btn-next.is-loading {
+  pointer-events: none;
+  position: relative;
+  color: transparent;
+}
+
+.strategy-btn-next.is-loading::after {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(10, 15, 30, 0.25);
+  border-top-color: var(--navy);
+  border-radius: 50%;
+  animation: strategySpin 0.7s linear infinite;
+}
+
+@keyframes strategySpin {
+  to { transform: rotate(360deg); }
+}
+
+.strategy-draft-hint {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 0 28px 12px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.strategy-draft-hint.is-visible {
+  opacity: 1;
+}
+
+.strategy-success {
+  display: none;
+  text-align: center;
+  padding: 12px 8px 8px;
+  animation: strategyFadeIn 0.5s ease both;
+}
+
+.strategy-success.is-active {
+  display: block;
+}
+
+.strategy-success-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.12);
+  border: 2px solid rgba(34, 197, 94, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: strategyCheckPop 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+@keyframes strategyCheckPop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.strategy-success-icon svg {
+  width: 36px;
+  height: 36px;
+  stroke: var(--green);
+  stroke-width: 2.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.strategy-success-icon .check-path {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: strategyCheckDraw 0.5s ease 0.45s forwards;
+}
+
+@keyframes strategyCheckDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+.strategy-success h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  letter-spacing: -0.3px;
+}
+
+.strategy-success p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.strategy-success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.strategy-success-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s, background 0.2s;
+}
+
+.strategy-success-wa {
+  background: #25D366;
+  color: #fff;
+}
+
+.strategy-success-wa:hover {
+  transform: translateY(-1px);
+  background: #2ee06d;
+}
+
+.strategy-success-email {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.strategy-success-email:hover {
+  border-color: var(--border-accent);
+  background: var(--accent-glow);
+}
+
+.strategy-form-wrap.is-success .strategy-progress,
+.strategy-form-wrap.is-success .strategy-form-panels,
+.strategy-form-wrap.is-success .strategy-modal-footer,
+.strategy-form-wrap.is-success .strategy-draft-hint {
+  display: none !important;
+}
+
+/* Admin: triple-click nav logo to export leads CSV */
+.ff-admin-toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  z-index: 10001;
+  max-width: min(90vw, 420px);
+  padding: 14px 22px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--navy);
+  background: var(--accent);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+  pointer-events: none;
+}
+
+.ff-admin-toast.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.ff-admin-toast.is-error {
+  background: rgba(239, 68, 68, 0.95);
+  color: #fff;
+}
+
+@media (max-width: 540px) {
+  .strategy-modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .strategy-modal {
+    max-height: 96dvh;
+    border-radius: 20px 20px 0 0;
+    margin: 0;
+  }
+
+  .strategy-form-wrap {
+    max-height: 96dvh;
+  }
+
+  .strategy-modal-close {
+    top: 10px;
+    right: 10px;
+  }
+
+  .strategy-modal-header,
+  .strategy-modal-body,
+  .strategy-modal-footer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .strategy-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .strategy-progress-label {
+    font-size: 9px;
+    max-width: 56px;
+  }
+
+  .strategy-progress-dot {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .strategy-progress-step:not(:last-child)::after {
+    top: 12px;
+    left: calc(50% + 14px);
+    width: calc(100% - 28px);
+  }
+}
+
+/* â”€â”€â”€ RESPONSIVE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+@media (max-width:1000px) {
+  .hero-visual { display:none; }
+  .problem-grid { grid-template-columns:1fr 1fr; }
+  .solutions-grid { grid-template-columns:1fr; }
+  .why-layout { grid-template-columns:1fr; }
+  .workflow-steps { grid-template-columns:1fr 1fr; }
+  .workflow-steps::before { display:none; }
+  .ops-grid { grid-template-columns:1fr; }
+  .case-grid { grid-template-columns:1fr; }
+  .who-grid { grid-template-columns:1fr; }
+  .founder-layout { grid-template-columns:1fr; }
+  .founder-photo-frame { aspect-ratio:auto;padding:40px; }
+  .after-call-grid { grid-template-columns:1fr; }
+  .hero-stats { gap:28px; }
+  .nav-toggle {
+    display: flex;
+    position: relative;
+    z-index: 201;
+  }
+  .nav-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 199;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 88px 24px 32px;
+    background: rgba(10, 15, 30, 0.97);
+    backdrop-filter: blur(20px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  nav.is-menu-open .nav-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .nav-links {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    width: 100%;
+  }
+  .nav-links li { width: 100%; }
+  .nav-links a {
+    display: block;
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: 10px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .nav-links a:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .nav-links .nav-cta {
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+    padding: 16px 22px !important;
+    font-size: 15px !important;
+  }
+  .after-call-inner { padding:36px 28px; }
+}
+
+/* â”€â”€â”€ GLOBAL RESPONSIVE FIXES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+img, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.container {
+  width: 100%;
+}
+
+.hero {
+  min-height: auto;
+}
+
+.hero .container {
+  display: flex;
+  align-items: center;
+  min-height: calc(100vh - 120px);
+}
+
+.hero h1 {
+  word-break: break-word;
+}
+
+.hero-visual {
+  max-width: 48vw;
+}
+
+body, html {
+  overflow-x: hidden;
+}
+
+@media (max-width: 1400px) {
+  .hero-visual {
+    right: 0;
+    width: 480px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .container,
+  .nav-inner {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  .hero h1 {
+    font-size: clamp(40px, 7vw, 72px);
+  }
+
+  .hero-sub {
+    max-width: 100%;
+  }
+
+  .hero-visual {
+    width: 420px;
+  }
+}
+
+@media (max-width: 992px) {
+  .hero .container {
+    display: block;
+  }
+
+  .hero {
+    padding-top: 120px;
+  }
+
+  .hero-visual {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    margin-top: 48px;
+  }
+
+  .dash-frame {
+    max-width: 100%;
+  }
+
+  .problem-grid,
+  .solutions-grid,
+  .who-grid,
+  .case-grid,
+  .ops-grid,
+  .after-call-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .workflow-steps {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 32px !important;
+  }
+
+  .workflow-steps::before {
+    display: none !important;
+  }
+
+  .why-layout,
+  .founder-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .why-proof {
+    position: relative !important;
+    top: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  nav {
+    padding: 14px 0;
+  }
+
+  .nav-inner {
+    gap: 16px;
+    padding: 0 18px !important;
+  }
+
+  .hero {
+    padding: 110px 0 64px;
+  }
+
+  .hero h1 {
+    font-size: clamp(38px, 13vw, 56px);
+    line-height: 0.98;
+    letter-spacing: -1px;
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .hero-actions,
+  .cta-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .hero-stats {
+    gap: 20px;
+  }
+
+  .stat-item {
+    width: calc(50% - 10px);
+  }
+
+  .section-h2 {
+    font-size: clamp(28px, 9vw, 42px);
+    line-height: 1.1;
+  }
+
+  .section-desc {
+    font-size: 15px;
+  }
+
+  .solution-card,
+  .problem-card,
+  .who-card,
+  .ops-card,
+  .case-card {
+    padding: 24px 20px !important;
+  }
+
+  .founder-photo-frame {
+    padding: 28px 20px;
+  }
+
+  .after-call-inner {
+    padding: 28px 20px !important;
+  }
+
+  .cta-section {
+    padding: 90px 0;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .wa-float {
+    right: 16px;
+    bottom: 16px;
+    transform: scale(0.9);
+  }
+}
+
+@media (max-width: 480px) {
+  .container,
+  .nav-inner {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+
+  .hero h1 {
+    font-size: 34px;
+  }
+
+  .stat-item {
+    width: 100%;
+  }
+
+  .metric-val {
+    font-size: 18px;
+  }
+
+  .dash-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-steps {
+    grid-template-columns: 1fr !important;
+  }
+
+  .step-item {
+    padding: 0;
+  }
+
+  .who-footer {
+    padding: 18px;
+  }
+
+  .cta-trust-row {
+    gap: 12px;
+    flex-direction: column;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<!-- WHATSAPP FLOAT -->
+<a href="https://wa.me/919061609076?text=Hi%20Albin%2C%20I%27d%20like%20to%20discuss%20logistics%20software%20for%20my%20operation." class="wa-float" target="_blank" aria-label="Chat on WhatsApp">
+  <svg class="wa-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.674 4.796 1.848 6.787L2 30l7.417-1.813A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" fill="white" fill-opacity="0.2"/>
+    <path d="M22.5 19.5c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.49-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.47s1.07 2.87 1.22 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z" fill="white"/>
+  </svg>
+  <span class="wa-text">Chat on WhatsApp</span>
+</a>
+
+<!-- NAV -->
+<nav id="siteNav">
+  <div class="nav-inner">
+    <div class="logo">Fleet<span>Forge</span></div>
+    <button type="button" class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navMenu">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
+    <div class="nav-menu" id="navMenu">
+      <ul class="nav-links">
+      <li><a href="#problem">The Problem</a></li>
+      <li><a href="#solutions">Solutions</a></li>
+      <li><a href="#cases">Case Studies</a></li>
+      <li><a href="#founder">About</a></li>
+      <li><a href="#" class="nav-cta js-open-strategy-modal">Book a Strategy Call</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- HERO                                   -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="hero">
+  <div class="container" style="position:relative;">
+    <div style="max-width:620px;">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Logistics Technology Partner · Based in India
+      </div>
+      <h1>
+        Your Fleet Is<br/>Running You.<br/>
+        Let's <em>Fix That.</em>
+      </h1>
+      <p class="hero-sub">
+        We build custom logistics software for transport companies, fleet operators, and delivery businesses — replacing phone calls, spreadsheets, and WhatsApp with systems that give you full control over your operation.
+      </p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary js-open-strategy-modal">
+          Get a Free Ops Consultation â†’
+        </a>
+        <a href="#cases" class="btn-secondary">
+          See Real Results
+          <span class="btn-arrow">â†’</span>
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num">3<span>+</span></div>
+          <div class="stat-label">Years building<br/>logistics platforms</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">40<span>%</span></div>
+          <div class="stat-label">Avg. operational delay<br/>reduction in live systems</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">2</div>
+          <div class="stat-label">Enterprise logistics<br/>platforms in production</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="dash-frame">
+        <div class="dash-header">
+          <span class="dash-title">Fleet Operations · Live View</span>
+          <div class="dash-live"><div class="live-dot"></div> Live</div>
+        </div>
+        <div class="dash-metrics">
+          <div class="metric-card">
+            <div class="metric-label">Active Trips</div>
+            <div class="metric-val">34</div>
+            <div class="metric-change">â†‘ 12 this hour</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Drivers Online</div>
+            <div class="metric-val">28</div>
+            <div class="metric-change">All confirmed</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Revenue Today</div>
+            <div class="metric-val">â‚¹2.4L</div>
+            <div class="metric-change">â†‘ 18% vs yesterday</div>
+          </div>
+        </div>
+        <div class="dash-map">
+          <div class="map-grid"></div>
+          <div class="truck-dot"></div>
+          <div class="dest-dot"></div>
+          <svg class="route-line" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <polyline points="15,55 35,35 55,45 72,22" stroke="#F4A31A" stroke-width="0.8" stroke-dasharray="3,2" fill="none"/>
+            <polyline points="20,70 40,65 60,72 78,62" stroke="#4A6FA5" stroke-width="0.6" stroke-dasharray="2,3" fill="none"/>
+          </svg>
+        </div>
+        <div class="dash-trips">
+          <div class="trip-row">
+            <span class="trip-id">#TRP-2041</span>
+            <span class="trip-route">Mumbai â†’ Pune</span>
+            <span class="trip-status status-active">Active</span>
+          </div>
+          <div class="trip-row">
+            <span class="trip-id">#TRP-2042</span>
+            <span class="trip-route">Delhi â†’ Jaipur</span>
+            <span class="trip-status status-transit">In Transit</span>
+          </div>
+          <div class="trip-row">
+            <span class="trip-id">#TRP-2039</span>
+            <span class="trip-route">Chennai â†’ Bengaluru</span>
+            <span class="trip-status status-done">Delivered</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STRIP -->
+<div class="tech-strip">
+  <div class="container">
+    <div class="tech-label">Built with the same infrastructure used by enterprise logistics companies</div>
+    <div class="tech-logos">
+      <div class="tech-pill"><div class="tech-dot" style="background:#3B82F6;"></div>Scalable Cloud Backend</div>
+      <div class="tech-pill"><div class="tech-dot" style="background:#61DAFB;"></div>Live Operations Dashboard</div>
+      <div class="tech-pill"><div class="tech-dot" style="background:#FF6B35;"></div>Multi-Fleet Database</div>
+      <div class="tech-pill"><div class="tech-dot" style="background:#F4A31A;"></div>AWS Cloud Hosted</div>
+      <div class="tech-pill"><div class="tech-dot" style="background:#22C55E;"></div>Instant Notifications</div>
+      <div class="tech-pill"><div class="tech-dot" style="background:#8B5CF6;"></div>Mobile-Ready</div>
+    </div>
+  </div>
+</div>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- PROBLEM                                -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="problem" id="problem">
+  <div class="container">
+    <div class="section-label">The Real Problem</div>
+    <h2 class="section-h2">Every day your operation runs<br/>on phone calls is a day<br/>you're losing money.</h2>
+    <p class="section-desc">Most transport businesses manage â‚¹10 crore+ operations with the same tools they used 15 years ago. Here's what that actually costs you.</p>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon">
+          <!-- <svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17 6l-1.5 1.5M7 17l-1.5 1.5M3 3l18 18M10.68 10.68a2 2 0 1 0 2.64 2.64M14.5 9.5A5 5 0 0 0 9.5 14.5"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg> -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="rgb(244, 163, 26)" d="M480 272C480 317.9 465.1 360.3 440 394.7L566.6 521.4C579.1 533.9 579.1 554.2 566.6 566.7C554.1 579.2 533.8 579.2 521.3 566.7L394.7 440C360.3 465.1 317.9 480 272 480C157.1 480 64 386.9 64 272C64 157.1 157.1 64 272 64C386.9 64 480 157.1 480 272zM272 416C351.5 416 416 351.5 416 272C416 192.5 351.5 128 272 128C192.5 128 128 192.5 128 272C128 351.5 192.5 416 272 416z"/></svg>
+        </div>
+        <div class="problem-title">No Visibility Until You Call</div>
+        <p class="problem-desc">You find out a truck is delayed when the client complains — not before. By then, the damage is done. You need to see your entire fleet moving, live, without picking up the phone.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/><path d="M12 8v4M12 16h.01"/></svg></div>
+        <div class="problem-title">Dispatch Is a Daily Crisis</div>
+        <p class="problem-desc">Assigning trips over WhatsApp. Double-bookings. Drivers claiming they never got the message. Every morning starts with 45 minutes of back-and-forth that should take 5.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div>
+        <div class="problem-title">Invoices Raised Days After Delivery</div>
+        <p class="problem-desc">Your billing team manually calculates rates from notes and WhatsApp screenshots. Charges get missed. Disputes take weeks. Cash flow suffers — not because you didn't do the work, but because the paperwork couldn't keep up.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="problem-title">Delivery Delays Damaging Client Trust</div>
+        <p class="problem-desc">No one knows where a truck is until it's late. Clients get angry. You lose contracts. The problem isn't your drivers — it's the complete absence of a real-time system.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="problem-title">Driver Coordination Running on Trust</div>
+        <p class="problem-desc">No structured way to confirm driver availability, verify documents, or track who's handling which trip. One driver issue shouldn't derail three deliveries — but it does.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><path d="M2 20h20"/></svg></div>
+        <div class="problem-title">Business Decisions Made Blind</div>
+        <p class="problem-desc">You know roughly what revenue looks like. Roughly. You don't know your actual cost-per-trip, best-performing routes, or which clients drive your margins. Every strategic decision is a guess.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- WHO WE WORK WITH                       -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="who" id="who">
+  <div class="container">
+    <div class="section-label">Who We Work With</div>
+    <h2 class="section-h2">Built for logistics businesses<br/>that have outgrown manual operations.</h2>
+    <p class="section-desc">We work with operators who are serious about modernising their business — not just adding an app.</p>
+
+    <div class="who-grid">
+      <div class="who-card">
+        <div class="who-check"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <div>
+          <div class="who-title">Fleet Operators with 10–200 Vehicles</div>
+          <p class="who-desc">You're big enough that Excel is breaking. You're managing too many trucks for WhatsApp groups to work. A custom system built for your scale is the logical next step.</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-check"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div>
+          <div class="who-title">Transport Companies Scaling Operations</div>
+          <p class="who-desc">You're adding clients, routes, or depots and the operational complexity is compounding. You need systems that scale with you — not ones you'll outgrow in 12 months.</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-check"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+        <div>
+          <div class="who-title">Delivery Businesses with Multiple Drivers</div>
+          <p class="who-desc">Last-mile, hyperlocal, or scheduled delivery operations where driver coordination, proof of delivery, and customer visibility are daily challenges.</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-check"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg></div>
+        <div>
+          <div class="who-title">Logistics Operators Replacing Legacy Systems</div>
+          <p class="who-desc">Your current TMS doesn't fit. It's either too expensive, too rigid, or was built for someone else's workflow. You need something custom — built around how you actually operate.</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-check"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+        <div>
+          <div class="who-title">Regional Operators Competing with Larger Players</div>
+          <p class="who-desc">You need the same operational visibility and professionalism that large logistics companies offer clients — without their overhead or enterprise software budgets.</p>
+        </div>
+      </div>
+      <div class="who-card">
+        <div class="who-check"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <div>
+          <div class="who-title">Logistics Startups Needing an MVP Fast</div>
+          <p class="who-desc">You have the business model and the market. You need a working logistics platform — dispatch, tracking, billing — built quickly, cleanly, and ready to handle real volume from day one.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="who-footer">
+      <div class="who-footer-text" style="display:flex;align-items:center;gap:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.54 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Not sure if you're the right fit? Book a 15-minute qualification call — no commitment required.</div>
+      <a href="#" class="btn-primary js-open-strategy-modal" style="font-size:14px;padding:12px 24px;">Let's Talk â†’</a>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- SOLUTIONS                              -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="solutions" id="solutions">
+  <div class="container">
+    <div class="section-label">What We Build</div>
+    <h2 class="section-h2">Purpose-built logistics software.<br/>No off-the-shelf compromises.</h2>
+    <p class="section-desc">Every system is designed around how your operation works — not the other way around.</p>
+
+    <div class="solutions-grid">
+      <div class="solution-card">
+        <div class="solution-icon-wrap"><svg viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg></div>
+        <div class="solution-body">
+          <div class="solution-title">Live Fleet Tracking Dashboard</div>
+          <p class="solution-desc">See every truck, every trip, every status — moving in real time on a live map. No phone calls. No guessing. Know exactly where your fleet is and what's happening before your client asks.</p>
+          <div class="solution-tags">
+            <span class="tag">Live Map View</span>
+            <span class="tag">SIM-Based GPS</span>
+            <span class="tag">Instant Delay Alerts</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-card">
+        <div class="solution-icon-wrap"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <div class="solution-body">
+          <div class="solution-title">Trip & Delivery Management</div>
+          <p class="solution-desc">Manage the full journey of every delivery — from dispatch to doorstep confirmation. Drivers receive assignments on mobile. Clients get status updates automatically. You stay in control without staying on the phone.</p>
+          <div class="solution-tags">
+            <span class="tag">Digital Dispatch</span>
+            <span class="tag">Proof of Delivery</span>
+            <span class="tag">OTP Confirmation</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-card">
+        <div class="solution-icon-wrap"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="solution-body">
+          <div class="solution-title">Driver Management System</div>
+          <p class="solution-desc">Onboard drivers digitally. Track licence and document expiry. Monitor trip history, performance, and earnings — all in one place. Stop managing drivers through memory and saved contacts.</p>
+          <div class="solution-tags">
+            <span class="tag">Document Alerts</span>
+            <span class="tag">Performance Tracking</span>
+            <span class="tag">Driver App</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-card">
+        <div class="solution-icon-wrap"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div>
+        <div class="solution-body">
+          <div class="solution-title">Automated Invoicing & Billing</div>
+          <p class="solution-desc">The moment a trip is completed, the invoice is generated. Rate cards, surcharges, GST — calculated automatically. No manual reconciliation. No missed charges. Collections that actually happen on time.</p>
+          <div class="solution-tags">
+            <span class="tag">Auto-Invoice on Delivery</span>
+            <span class="tag">Rate Card Engine</span>
+            <span class="tag">Payment Tracking</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-card">
+        <div class="solution-icon-wrap"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <div class="solution-body">
+          <div class="solution-title">Operations Command Centre</div>
+          <p class="solution-desc">A live dashboard showing your entire operation at a glance — fleet health, today's revenue, pending trips, driver availability, and business-critical metrics. Make decisions with data, not gut feel.</p>
+          <div class="solution-tags">
+            <span class="tag">Custom KPIs</span>
+            <span class="tag">Cost-Per-Trip Reports</span>
+            <span class="tag">Route Analytics</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="solution-card">
+        <div class="solution-icon-wrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+        <div class="solution-body">
+          <div class="solution-title">Load Bidding & Transporter Network</div>
+          <p class="solution-desc">Let transporters compete for loads in real time. Bids update live. Winners are selected instantly. Ideal for freight brokers and marketplace operators who need transparent, fast load allocation at scale.</p>
+          <div class="solution-tags">
+            <span class="tag">Live Load Board</span>
+            <span class="tag">Competitive Bidding</span>
+            <span class="tag">Multi-Transporter</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- CASE STUDIES                           -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="cases" id="cases">
+  <div class="container">
+    <div class="section-label">Projects we built  & Shipped in Production</div>
+    <h2 class="section-h2">Real platforms. Real operations.<br/>Real outcomes.</h2>
+    <p class="section-desc">These aren't demos or portfolio projects. These are enterprise logistics systems built and running in production.</p>
+
+    <div class="case-grid">
+      <div class="case-card">
+        <span class="case-card-tag">Multi-Tenant Logistics SaaS</span>
+        <div class="case-title">CloudTrack — Enterprise Logistics Platform</div>
+        <p class="case-context">A legacy logistics monolith was re-architected into a modern, multi-tenant SaaS platform serving multiple transport businesses simultaneously. The system handles live trip tracking, driver coordination, bidding workflows, and automated billing across a high-volume operational environment.</p>
+
+        <div class="case-outcomes">
+          <div class="case-outcome">
+            <span class="case-outcome-arrow">â†’</span>
+            <span class="case-outcome-text"><strong>Before:</strong> Operations staff spending hours daily reconciling trip data from phone calls and spreadsheets. <strong>After:</strong> Full trip lifecycle managed digitally — from dispatch to invoice — with zero manual data entry.</span>
+          </div>
+          <div class="case-outcome">
+            <span class="case-outcome-arrow">â†’</span>
+            <span class="case-outcome-text"><strong>Before:</strong> 6–8 hour billing delays after trip completion. <strong>After:</strong> Invoices auto-generated within seconds of delivery confirmation.</span>
+          </div>
+          <div class="case-outcome">
+            <span class="case-outcome-arrow">â†’</span>
+            <span class="case-outcome-text"><strong>Before:</strong> No real-time visibility on fleet movement. <strong>After:</strong> Live SIM-based GPS tracking on every active trip, visible on a live operations dashboard.</span>
+          </div>
+          <div class="case-outcome">
+            <span class="case-outcome-arrow">â†’</span>
+            <span class="case-outcome-text"><strong>Before:</strong> Slow, overloaded backend struggling under operational load. <strong>After:</strong> Platform response times improved by <strong>40–60%</strong> through caching and architecture optimisation.</span>
+          </div>
+        </div>
+
+        <div class="case-metrics">
+          <div>
+            <div class="case-metric-val">40–60%</div>
+            <div class="case-metric-label">Faster system response</div>
+          </div>
+          <div>
+            <div class="case-metric-val">0</div>
+            <div class="case-metric-label">Manual invoice steps</div>
+          </div>
+          <div>
+            <div class="case-metric-val">Live</div>
+            <div class="case-metric-label">Fleet visibility</div>
+          </div>
+          <div>
+            <div class="case-metric-val">Multi</div>
+            <div class="case-metric-label">-tenant architecture</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-card">
+        <span class="case-card-tag">Ride-Hailing & Fleet Matching Platform</span>
+        <div class="case-title">RideFlow — Distributed Fleet Operations</div>
+        <p class="case-context">A distributed ride-hailing and fleet management platform built from the ground up with independent service modules — covering driver matching, geolocation, trip management, and payment processing. Designed to scale from day one without architectural rewrites.</p>
+
+        <div class="case-outcomes">
+          <div class="case-outcome">
+            <span class="case-outcome-arrow">â†’</span>
+            <span class="case-outcome-text"><strong>Challenge:</strong> Build a system that could match drivers to passengers intelligently — with location-aware search, timeout logic, and automatic radius expansion when no drivers are nearby.</span>
+          </div>
+          <div class="case-outcome">
+            <span class="case-outcome-arrow">â†’</span>
+            <span class="case-outcome-text"><strong>Result:</strong> A geospatial matching engine that finds the nearest available driver within configurable zones, expanding radius automatically until a match is confirmed.</span>
+          </div>
+          <div class="case-outcome">
+            <span class="case-outcome-arrow">â†’</span>
+            <span class="case-outcome-text"><strong>Payment reliability:</strong> Built with full retry handling and idempotent processing — ensuring no payment is charged twice, and no failed transaction is silently dropped.</span>
+          </div>
+          <div class="case-outcome">
+            <span class="case-outcome-arrow">â†’</span>
+            <span class="case-outcome-text"><strong>Architecture built to grow:</strong> 7 independent service modules means any part of the system can be scaled, updated, or replaced without affecting the rest of the operation.</span>
+          </div>
+        </div>
+
+        <div class="case-metrics">
+          <div>
+            <div class="case-metric-val">7</div>
+            <div class="case-metric-label">Independent modules</div>
+          </div>
+          <div>
+            <div class="case-metric-val">Geo</div>
+            <div class="case-metric-label">-spatial driver matching</div>
+          </div>
+          <div>
+            <div class="case-metric-val">OTP</div>
+            <div class="case-metric-label">Trip start verification</div>
+          </div>
+          <div>
+            <div class="case-metric-val">Zero</div>
+            <div class="case-metric-label">Payment processing errors</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- OPERATIONAL PROOF                      -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="ops-proof">
+  <div class="container">
+    <div class="section-label">Operational Problems We've Solved</div>
+    <h2 class="section-h2">The exact scenarios we've<br/>built solutions for.</h2>
+    <p class="section-desc">These aren't hypothetical. These are operational problems we've solved in production systems for real logistics businesses.</p>
+
+    <div class="ops-grid">
+      <div class="ops-card">
+        <span class="ops-card-icon">ðŸ“ž</span>
+        <div class="ops-problem">Dispatch Problem</div>
+        <div class="ops-headline">"We were assigning 40 trips a day over WhatsApp. Mistakes happened daily."</div>
+        <div class="ops-before">Operations manager spending 3+ hours daily on manual trip assignments. Wrong drivers, wrong trucks, missed pickups.</div>
+        <span class="ops-arrow">â†“ Solved with</span>
+        <div class="ops-after">Digital dispatch board with one-click assignment. Drivers receive instant notification with trip details. Confirmation required before trip starts.</div>
+        <div class="ops-metric">
+          <span class="ops-metric-val">3 hrs</span>
+          <span class="ops-metric-label">saved daily on dispatch coordination</span>
+        </div>
+      </div>
+
+      <div class="ops-card">
+        <span class="ops-card-icon">ðŸ§¾</span>
+        <div class="ops-problem">Billing Problem</div>
+        <div class="ops-headline">"We were raising invoices 5 days after delivery. Clients were always in dispute."</div>
+        <div class="ops-before">Billing team manually calculating trip costs from Excel sheets and WhatsApp messages. â‚¹2–5L in monthly disputed charges.</div>
+        <span class="ops-arrow">â†“ Solved with</span>
+        <div class="ops-after">Automated invoice generation the moment a trip is marked delivered. All rates, surcharges, and GST calculated from pre-configured rate cards. Zero manual entry.</div>
+        <div class="ops-metric">
+          <span class="ops-metric-val">5 days</span>
+          <span class="ops-metric-label">billing cycle cut to under 60 seconds</span>
+        </div>
+      </div>
+
+      <div class="ops-card">
+        <span class="ops-card-icon">ðŸ“</span>
+        <div class="ops-problem">Visibility Problem</div>
+        <div class="ops-headline">"We had 60 trucks on the road and no idea where any of them were."</div>
+        <div class="ops-before">Fleet owner relying on driver phone calls for location updates. Clients calling every 2 hours asking for ETAs. Operations completely reactive.</div>
+        <span class="ops-arrow">â†“ Solved with</span>
+        <div class="ops-after">Live tracking dashboard showing every vehicle position, active trip status, and estimated arrival — updated continuously, visible to operations and clients alike.</div>
+        <div class="ops-metric">
+          <span class="ops-metric-val">60+</span>
+          <span class="ops-metric-label">trucks tracked live without a single phone call</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- WHY                                    -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="why" id="why">
+  <div class="container">
+    <div class="section-label">Why FleetForge</div>
+    <h2 class="section-h2">The difference between a<br/>developer and a logistics partner.</h2>
+
+    <div class="why-layout">
+      <div class="why-list">
+        <div class="why-item">
+          <div class="why-num">01</div>
+          <div class="why-text">
+            <h4>You Get Direct Access to the Senior Engineer</h4>
+            <p>There's no account manager passing messages to a backend team in another city. You speak directly to the person building your system — who also understands how logistics operations actually run. Decisions happen in hours, not weeks.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-num">02</div>
+          <div class="why-text">
+            <h4>I've Operated Inside Enterprise Logistics Platforms</h4>
+            <p>I didn't learn logistics from a textbook. I built fleet tracking, trip management, billing automation, and driver coordination systems for a live, production SaaS platform. I understand the edge cases, the operational chaos, and what actually matters to operators.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-num">03</div>
+          <div class="why-text">
+            <h4>Built Around Your Workflow — Not Around Our Preferences</h4>
+            <p>Off-the-shelf TMS tools are built for an average logistics company that doesn't exist. Your rate cards, approval flows, exception handling, and reporting needs are specific to you. We build around those specifics — no workarounds, no "we'll add that later."</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-num">04</div>
+          <div class="why-text">
+            <h4>Enterprise-Grade Systems at a Founder Budget</h4>
+            <p>The architecture powering your platform is the same used by well-funded logistics SaaS companies — designed to handle real scale, built to stay reliable under operational load, and deployed on cloud infrastructure you own and control.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-num">05</div>
+          <div class="why-text">
+            <h4>Complete Ownership. No Lock-In. Ever.</h4>
+            <p>Full source code is yours from day one. Deployed to your cloud account. Your data never touches a third-party SaaS you don't control. No monthly licence fee. No risk of a platform shutdown making your operation go dark.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="why-proof">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:22px;">Measured from live production systems</div>
+
+        <div class="proof-metric">
+          <div class="proof-val">40–60%</div>
+          <div class="proof-label">Faster system response times</div>
+          <div class="proof-sub">Achieved through intelligent caching and API optimisation on CloudTrack's high-volume logistics platform</div>
+        </div>
+        <div class="proof-metric">
+          <div class="proof-val">2</div>
+          <div class="proof-label">Enterprise platforms in production</div>
+          <div class="proof-sub">CloudTrack (multi-tenant logistics SaaS) and RideFlow (distributed fleet & ride-hailing platform)</div>
+        </div>
+        <div class="proof-metric">
+          <div class="proof-val">0 sec</div>
+          <div class="proof-label">Invoice generation delay</div>
+          <div class="proof-sub">Fully automated from delivery confirmation — no human in the billing loop</div>
+        </div>
+        <div class="proof-metric">
+          <div class="proof-val">Live</div>
+          <div class="proof-label">Real-time fleet visibility</div>
+          <div class="proof-sub">SIM-based GPS tracking with live map dashboards, built and operating in production</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- FOUNDER                                -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="founder" id="founder">
+  <div class="container">
+    <div class="section-label">About the Founder</div>
+    <h2 class="section-h2">Not a vendor. A logistics<br/>technology partner.</h2>
+
+    <div class="founder-layout">
+      <div class="founder-photo-frame">
+        <div class="founder-avatar-placeholder">AJ</div>
+        <div class="founder-photo-label" style="color:var(--text-muted);font-size:13px;margin-top:12px;">Albin Joseph<br/>Logistics Software Engineer</div>
+      </div>
+
+      <div class="founder-content">
+        <div class="founder-name">Albin Joseph</div>
+        <div class="founder-role">Founder · Logistics Technology Engineer</div>
+        <div class="founder-bio">
+          <p>I'm a full-stack software engineer who spent the last few years building enterprise logistics systems — not as a consultant observing from the outside, but as the engineer responsible for keeping them running in production.</p>
+          <p>At Cloudesign, I was the engineer behind CloudTrack — re-architecting a legacy logistics platform into a modern, multi-tenant SaaS system. I built the trip management workflows, the live tracking infrastructure, the automated billing engine, the real-time bidding system, and the driver coordination modules. Every part of that platform, I designed and shipped.</p>
+          <p>I've seen what operational chaos looks like at scale. I've also seen what happens when the right software is in place — how dispatch gets faster, how billing stops leaking money, how operators finally have the visibility they need to make real decisions.</p>
+          <p>FleetForge exists because logistics businesses deserve software built by someone who understands both the technology and the operational reality behind it.</p>
+        </div>
+        <div class="founder-credentials">
+          <div class="credential">
+            <span class="credential-dot"></span>
+            <span>3+ years building production logistics and fleet management platforms</span>
+          </div>
+          <div class="credential">
+            <span class="credential-dot"></span>
+            <span>Engineer behind CloudTrack (enterprise logistics SaaS) and RideFlow (distributed ride-hailing platform)</span>
+          </div>
+          <div class="credential">
+            <span class="credential-dot"></span>
+            <span>Deep hands-on experience with fleet tracking, trip management, automated billing, and driver coordination</span>
+          </div>
+          <div class="credential">
+            <span class="credential-dot"></span>
+            <span>Technical writing on logistics systems and scalable backend architecture — published on Medium</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- WORKFLOW                               -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="workflow" id="workflow">
+  <div class="container">
+    <div class="section-label">How We Work</div>
+    <h2 class="section-h2">From first conversation to<br/>live system in weeks.</h2>
+    <p class="section-desc">A focused, low-friction process built around fast execution and zero surprises.</p>
+
+    <div class="workflow-steps">
+      <div class="step-item">
+        <div class="step-num">01</div>
+        <div class="step-title">Ops Discovery Call</div>
+        <p class="step-desc">We map your current workflows, bottlenecks, and goals. You get clarity on what's actually costing you — whether or not you work with us.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">02</div>
+        <div class="step-title">Scope & Fixed Proposal</div>
+        <p class="step-desc">A clear specification and fixed-price proposal. No ambiguity. No hourly billing surprises. You know exactly what you're getting and what it costs.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">03</div>
+        <div class="step-title">MVP Built Fast</div>
+        <p class="step-desc">Core system live in your hands within weeks. Weekly demos, iterative feedback, and working software you can see and test — not just promises.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">04</div>
+        <div class="step-title">Deployed & Handed Over</div>
+        <p class="step-desc">Live on your cloud infrastructure. Full documentation. Team onboarding. You own everything — the code, the server, the data.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">05</div>
+        <div class="step-title">Ongoing Partnership</div>
+        <p class="step-desc">Optional support retainer for improvements, scaling, and new features as your operation evolves. Available when you need it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- AFTER THE CALL                         -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="after-call">
+  <div class="container">
+    <div style="text-align:center;">
+      <div class="section-label">What Happens After the Call</div>
+      <h2 class="section-h2" style="max-width:600px;margin:0 auto 12px;">You won't leave empty-handed.</h2>
+      <p class="section-desc" style="margin:0 auto;">Even if you decide FleetForge isn't the right fit, the strategy call delivers real value — no strings attached.</p>
+    </div>
+
+    <div class="after-call-inner">
+      <div style="font-size:14px;color:var(--text-muted);margin-bottom:8px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;">Within 48 hours of our call, you receive:</div>
+      <div class="after-call-grid">
+        <div class="after-item">
+          <div class="after-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+          <div>
+            <h4>Operational Bottleneck Analysis</h4>
+            <p>A written summary of your 3 biggest operational inefficiencies and the estimated cost of each — in time, money, and client trust.</p>
+          </div>
+        </div>
+        <div class="after-item">
+          <div class="after-icon"><svg viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg></div>
+          <div>
+            <h4>Workflow Modernisation Recommendations</h4>
+            <p>Specific, actionable suggestions for how technology can replace the manual processes creating the most friction in your operation today.</p>
+          </div>
+        </div>
+        <div class="after-item">
+          <div class="after-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+          <div>
+            <h4>Suggested System Architecture</h4>
+            <p>A plain-language overview of what a custom logistics platform for your operation would look like — the modules, the integrations, the data flows.</p>
+          </div>
+        </div>
+        <div class="after-item">
+          <div class="after-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div>
+            <h4>Implementation Roadmap</h4>
+            <p>A realistic timeline from first sprint to go-live, with priorities based on what will deliver operational impact fastest.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- CTA                                    -->
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="cta-section" id="cta">
+  <div class="container">
+    <div class="cta-inner">
+      <div class="section-label" style="text-align:center;">Ready to Modernise?</div>
+      <h2 class="section-h2">Stop losing money to<br/>manual operations.</h2>
+      <p class="section-desc">Book a free 30-minute strategy call. We'll look at how your operation runs today, identify exactly what's costing you, and show you what a modern logistics system could look like for your business.</p>
+      <div class="cta-actions">
+        <a href="#" class="btn-primary js-open-strategy-modal" style="font-size:16px;padding:18px 36px;">
+          Book Free Strategy Call â†’
+        </a>
+        <a href="https://wa.me/919061609076?text=Hi%20Albin%2C%20I%27d%20like%20to%20discuss%20logistics%20software%20for%20my%20operation." target="_blank" class="btn-ghost" style="background:rgba(37,211,102,0.08);border-color:rgba(37,211,102,0.25);color:#25D366;">
+          <svg width="18" height="18" viewBox="0 0 32 32" fill="none"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.674 4.796 1.848 6.787L2 30l7.417-1.813A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" fill="#25D366" fill-opacity="0.3"/><path d="M22.5 19.5c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.49-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.47s1.07 2.87 1.22 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z" fill="#25D366"/></svg>
+          WhatsApp Us
+        </a>
+      </div>
+      <div class="cta-trust-row">
+        <span class="cta-trust-item">Free 30-minute call</span>
+        <span class="cta-trust-item">No pitch, no pressure</span>
+        <span class="cta-trust-item">Written ops analysis included</span>
+        <span class="cta-trust-item">Response within 24 hours</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <div class="logo" style="margin-bottom:6px;">Fleet<span style="color:var(--accent);">Forge</span></div>
+        <div class="footer-copy">Logistics Technology Partner · Bengaluru, India</div>
+      </div>
+      <div class="footer-links">
+        <a href="mailto:albiejosephs101@gmail.com">albiejosephs101@gmail.com</a>
+        <a href="tel:+919061609076">+91 90616 09076</a>
+        <a href="https://wa.me/919061609076" target="_blank">WhatsApp</a>
+        <a href="https://medium.com/@albiejosephs101" target="_blank">Technical Blog</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- STRATEGY CALL QUALIFICATION MODAL -->
+<div class="strategy-modal-overlay" id="strategyModalOverlay" aria-hidden="true" role="dialog" aria-labelledby="strategyModalTitle" aria-modal="true">
+  <div class="strategy-modal" id="strategyModal">
+    <button type="button" class="strategy-modal-close" id="strategyModalClose" aria-label="Close form">&times;</button>
+    <div class="strategy-form-wrap" id="strategyFormWrap">
+      <div class="strategy-modal-header">
+        <div class="strategy-modal-eyebrow">Book a Strategy Call</div>
+        <h2 class="strategy-modal-title" id="strategyModalTitle">Qualify for your free logistics consultation</h2>
+        <p class="strategy-modal-subtitle">Answer a few questions so we can prepare for your operation — takes under 2 minutes.</p>
+
+        <div class="strategy-progress" id="strategyProgress">
+          <div class="strategy-progress-step is-active" data-step="1">
+            <div class="strategy-progress-dot">1</div>
+            <span class="strategy-progress-label">Basic Details</span>
+          </div>
+          <div class="strategy-progress-step" data-step="2">
+            <div class="strategy-progress-dot">2</div>
+            <span class="strategy-progress-label">Operations</span>
+          </div>
+          <div class="strategy-progress-step" data-step="3">
+            <div class="strategy-progress-dot">3</div>
+            <span class="strategy-progress-label">Qualification</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="strategy-modal-body">
+        <form id="strategyQualForm" novalidate>
+          <div class="strategy-form-panels" id="strategyFormPanels">
+            <!-- Step 1 -->
+            <div class="strategy-form-panel is-active" data-panel="1">
+              <div class="strategy-form-row">
+                <div class="strategy-field" data-field="fullName">
+                  <label for="sqFullName">Full Name <span class="req">*</span></label>
+                  <input type="text" id="sqFullName" name="fullName" placeholder="Your full name" autocomplete="name" required />
+                  <span class="strategy-field-error">Please enter your full name.</span>
+                </div>
+                <div class="strategy-field" data-field="company">
+                  <label for="sqCompany">Company Name <span class="req">*</span></label>
+                  <input type="text" id="sqCompany" name="company" placeholder="Your company" autocomplete="organization" required />
+                  <span class="strategy-field-error">Please enter your company name.</span>
+                </div>
+              </div>
+              <div class="strategy-field" data-field="email">
+                <label for="sqEmail">Email <span class="req">*</span></label>
+                <input type="email" id="sqEmail" name="email" placeholder="you@company.com" autocomplete="email" required />
+                <span class="strategy-field-error">Please enter a valid email address.</span>
+              </div>
+              <div class="strategy-field" data-field="whatsapp">
+                <label for="sqWhatsapp">WhatsApp Number <span class="req">*</span></label>
+                <input type="tel" id="sqWhatsapp" name="whatsapp" placeholder="+91 98765 43210" autocomplete="tel" required />
+                <span class="strategy-field-error">Please enter a valid phone number (10–15 digits).</span>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="strategy-form-panel" data-panel="2">
+              <div class="strategy-form-row">
+                <div class="strategy-field" data-field="businessType">
+                  <label for="sqBusinessType">Type of logistics business <span class="req">*</span></label>
+                  <select id="sqBusinessType" name="businessType" required>
+                    <option value="">Select type</option>
+                    <option value="Fleet Operator">Fleet Operator</option>
+                    <option value="Transport Company">Transport Company</option>
+                    <option value="Delivery Company">Delivery Company</option>
+                    <option value="Freight Broker">Freight Broker</option>
+                    <option value="Logistics Startup">Logistics Startup</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <span class="strategy-field-error">Please select your business type.</span>
+                </div>
+                <div class="strategy-field" data-field="fleetSize">
+                  <label for="sqFleetSize">Fleet Size <span class="req">*</span></label>
+                  <select id="sqFleetSize" name="fleetSize" required>
+                    <option value="">Select fleet size</option>
+                    <option value="1–10">1–10</option>
+                    <option value="10–50">10–50</option>
+                    <option value="50–100">50–100</option>
+                    <option value="100+">100+</option>
+                  </select>
+                  <span class="strategy-field-error">Please select your fleet size.</span>
+                </div>
+              </div>
+              <div class="strategy-field" data-field="challenges">
+                <label for="sqChallenges">Current operational challenges <span class="req">*</span></label>
+                <textarea id="sqChallenges" name="challenges" placeholder="Dispatch delays, billing issues, no fleet visibility…" required></textarea>
+                <span class="strategy-field-error">Please describe your main operational challenges.</span>
+              </div>
+              <div class="strategy-field" data-field="currentSoftware">
+                <label for="sqCurrentSoftware">Current tools / software used</label>
+                <textarea id="sqCurrentSoftware" name="currentSoftware" placeholder="Excel, WhatsApp, TMS name, custom tools…"></textarea>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="strategy-form-panel" data-panel="3">
+              <div class="strategy-form-row">
+                <div class="strategy-field" data-field="budget">
+                  <label for="sqBudget">Estimated budget range <span class="req">*</span></label>
+                  <select id="sqBudget" name="budget" required>
+                    <option value="">Select budget</option>
+                    <option value="â‚¹50k–â‚¹1L">â‚¹50k–â‚¹1L</option>
+                    <option value="â‚¹1L–â‚¹3L">â‚¹1L–â‚¹3L</option>
+                    <option value="â‚¹3L–â‚¹10L">â‚¹3L–â‚¹10L</option>
+                    <option value="â‚¹10L+">â‚¹10L+</option>
+                  </select>
+                  <span class="strategy-field-error">Please select a budget range.</span>
+                </div>
+                <div class="strategy-field" data-field="timeline">
+                  <label for="sqTimeline">Timeline to start <span class="req">*</span></label>
+                  <select id="sqTimeline" name="timeline" required>
+                    <option value="">Select timeline</option>
+                    <option value="Immediately">Immediately</option>
+                    <option value="Within 1 month">Within 1 month</option>
+                    <option value="1–3 months">1–3 months</option>
+                    <option value="Just exploring">Just exploring</option>
+                  </select>
+                  <span class="strategy-field-error">Please select a timeline.</span>
+                </div>
+              </div>
+              <div class="strategy-field" data-field="notes">
+                <label for="sqNotes">Additional notes</label>
+                <textarea id="sqNotes" name="notes" placeholder="Anything else we should know before the call…"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Success -->
+          <div class="strategy-success" id="strategySuccess">
+            <div class="strategy-success-icon">
+              <svg viewBox="0 0 24 24"><path class="check-path" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h3>Request received</h3>
+            <p>Thanks. Your logistics workflow consultation request has been received.<br><br>If your requirements are a good fit, we'll personally reach out within 24 hours to schedule a strategy session.</p>
+            <div class="strategy-success-actions">
+              <a href="https://wa.me/919061609076?text=Hi%20Albin%2C%20I%20just%20submitted%20a%20strategy%20call%20request%20via%20FleetForge." class="strategy-success-wa" target="_blank" rel="noopener">
+                <svg width="20" height="20" viewBox="0 0 32 32" fill="none"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.674 4.796 1.848 6.787L2 30l7.417-1.813A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" fill="white" fill-opacity="0.25"/><path d="M22.5 19.5c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.49-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.47s1.07 2.87 1.22 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z" fill="white"/></svg>
+                Message on WhatsApp
+              </a>
+              <a href="mailto:albiejosephs101@gmail.com?subject=Strategy%20Call%20Follow-up" class="strategy-success-email">albiejosephs101@gmail.com</a>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <p class="strategy-draft-hint" id="strategyDraftHint">Draft saved automatically</p>
+
+      <div class="strategy-modal-footer" id="strategyModalFooter">
+        <button type="button" class="strategy-btn-back" id="strategyBtnBack">Back</button>
+        <button type="button" class="strategy-btn-next" id="strategyBtnNext">Continue â†’</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function initMobileNav() {
+  const nav = document.getElementById('siteNav');
+  const toggle = document.getElementById('navToggle');
+  const menu = document.getElementById('navMenu');
+  if (!nav || !toggle || !menu) return;
+
+  function setMenuOpen(open) {
+    nav.classList.toggle('is-menu-open', open);
+    document.body.classList.toggle('nav-menu-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+
+  function closeMenu() {
+    setMenuOpen(false);
+  }
+
+  toggle.addEventListener('click', function () {
+    setMenuOpen(!nav.classList.contains('is-menu-open'));
+  });
+
+  menu.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      closeMenu();
+    });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && nav.classList.contains('is-menu-open')) closeMenu();
+  });
+
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 1000) closeMenu();
+  });
+})();
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.08 });
+
+const animated = '.problem-card,.solution-card,.why-item,.step-item,.ops-card,.case-card,.who-card,.after-item,.founder-content,.founder-photo-frame,.proof-metric';
+document.querySelectorAll(animated).forEach((el, i) => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(22px)';
+  el.style.transition = `opacity 0.5s ${i * 0.04}s ease, transform 0.5s ${i * 0.04}s ease`;
+  observer.observe(el);
+});
+
+/* â”€â”€â”€ Strategy Call Qualification Modal â”€â”€â”€ */
+(function StrategyCallModal() {
+  const LEADS_KEY = 'fleetforge_leads';
+  const DRAFT_KEY = 'fleetforge_lead_draft';
+  const TOTAL_STEPS = 3;
+
+  const overlay = document.getElementById('strategyModalOverlay');
+  const modal = document.getElementById('strategyModal');
+  const modalBody = document.querySelector('.strategy-modal-body');
+  const formWrap = document.getElementById('strategyFormWrap');
+  const form = document.getElementById('strategyQualForm');
+  const panels = document.querySelectorAll('.strategy-form-panel');
+  const progressSteps = document.querySelectorAll('.strategy-progress-step');
+  const btnNext = document.getElementById('strategyBtnNext');
+  const btnBack = document.getElementById('strategyBtnBack');
+  const btnClose = document.getElementById('strategyModalClose');
+  const successEl = document.getElementById('strategySuccess');
+  const draftHint = document.getElementById('strategyDraftHint');
+
+  let currentStep = 1;
+  let draftSaveTimer = null;
+
+  const fieldIds = [
+    'sqFullName', 'sqCompany', 'sqEmail', 'sqWhatsapp',
+    'sqBusinessType', 'sqFleetSize', 'sqChallenges', 'sqCurrentSoftware',
+    'sqBudget', 'sqTimeline', 'sqNotes'
+  ];
+
+  const stepFields = {
+    1: ['fullName', 'company', 'email', 'whatsapp'],
+    2: ['businessType', 'fleetSize', 'challenges'],
+    3: ['budget', 'timeline']
+  };
+
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(value).trim());
+  }
+
+  function isValidPhone(value) {
+    const digits = String(value).replace(/\D/g, '');
+    return digits.length >= 10 && digits.length <= 15;
+  }
+
+  function getFieldValue(name) {
+    const el = form.elements[name];
+    return el ? String(el.value).trim() : '';
+  }
+
+  function setFieldError(name, hasError) {
+    const wrap = form.querySelector('[data-field="' + name + '"]');
+    if (wrap) wrap.classList.toggle('has-error', hasError);
+  }
+
+  function validateField(name) {
+    const value = getFieldValue(name);
+    let valid = true;
+
+    switch (name) {
+      case 'fullName':
+      case 'company':
+        valid = value.length >= 2;
+        break;
+      case 'email':
+        valid = isValidEmail(value);
+        break;
+      case 'whatsapp':
+        valid = isValidPhone(value);
+        break;
+      case 'businessType':
+      case 'fleetSize':
+      case 'budget':
+      case 'timeline':
+        valid = value.length > 0;
+        break;
+      case 'challenges':
+        valid = value.length >= 10;
+        break;
+      default:
+        valid = true;
+    }
+
+    setFieldError(name, !valid);
+    return valid;
+  }
+
+  function validateStep(step) {
+    const fields = stepFields[step] || [];
+    let allValid = true;
+    fields.forEach(function (name) {
+      if (!validateField(name)) allValid = false;
+    });
+    return allValid;
+  }
+
+  function collectFormData() {
+    return {
+      fullName: getFieldValue('fullName'),
+      company: getFieldValue('company'),
+      email: getFieldValue('email'),
+      whatsapp: getFieldValue('whatsapp'),
+      businessType: getFieldValue('businessType'),
+      fleetSize: getFieldValue('fleetSize'),
+      challenges: getFieldValue('challenges'),
+      currentSoftware: getFieldValue('currentSoftware'),
+      budget: getFieldValue('budget'),
+      timeline: getFieldValue('timeline'),
+      notes: getFieldValue('notes')
+    };
+  }
+
+  function populateForm(data) {
+    if (!data) return;
+    Object.keys(data).forEach(function (key) {
+      if (form.elements[key]) form.elements[key].value = data[key] || '';
+    });
+  }
+
+  function saveDraft() {
+    try {
+      const draft = Object.assign(collectFormData(), { step: currentStep });
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      draftHint.classList.add('is-visible');
+      clearTimeout(draftSaveTimer);
+      draftSaveTimer = setTimeout(function () {
+        draftHint.classList.remove('is-visible');
+      }, 2000);
+    } catch (e) { /* storage full or disabled */ }
+  }
+
+  function loadDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      populateForm(draft);
+      if (draft.step && draft.step >= 1 && draft.step <= TOTAL_STEPS) {
+        goToStep(draft.step, true);
+      }
+    } catch (e) { /* ignore corrupt draft */ }
+  }
+
+  function clearDraft() {
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* noop */ }
+  }
+
+  function getLeads() {
+    try {
+      const raw = localStorage.getItem(LEADS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveLead(lead) {
+    const leads = getLeads();
+    leads.push(lead);
+    localStorage.setItem(LEADS_KEY, JSON.stringify(leads));
+    return leads;
+  }
+
+  function leadToRow(lead) {
+    return {
+      timestamp: lead.timestamp,
+      name: lead.name,
+      company: lead.company,
+      email: lead.email,
+      whatsapp: lead.whatsapp,
+      businessType: lead.businessType,
+      fleetSize: lead.fleetSize,
+      challenges: lead.challenges,
+      currentSoftware: lead.currentSoftware,
+      budget: lead.budget,
+      timeline: lead.timeline,
+      notes: lead.notes
+    };
+  }
+
+  function escapeCSV(value) {
+    const str = value == null ? '' : String(value);
+    if (/[",\n\r]/.test(str)) return '"' + str.replace(/"/g, '""') + '"';
+    return str;
+  }
+
+  function downloadCSV(filename, csvContent) {
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  window.exportLeadsToCSV = function exportLeadsToCSV() {
+    const leads = getLeads();
+    if (!leads.length) {
+      console.warn('[FleetForge] No leads stored yet. Only completed strategy-call form submissions are saved.');
+      return { ok: false, count: 0, message: 'No leads yet — only completed form submissions are stored.' };
+    }
+
+    const headers = [
+      'timestamp', 'name', 'company', 'email', 'whatsapp',
+      'businessType', 'fleetSize', 'challenges', 'currentSoftware',
+      'budget', 'timeline', 'notes'
+    ];
+
+    const rows = leads.map(function (lead) {
+      const row = leadToRow(lead);
+      return headers.map(function (h) { return escapeCSV(row[h]); }).join(',');
+    });
+
+    const csv = [headers.join(',')].concat(rows).join('\n');
+    const date = new Date().toISOString().slice(0, 10);
+    downloadCSV('fleetforge-leads-' + date + '.csv', csv);
+    console.info('[FleetForge] Exported ' + leads.length + ' completed form lead(s) to CSV.');
+    return { ok: true, count: leads.length, message: 'Exported ' + leads.length + ' lead(s) to CSV.' };
+  };
+
+  function showAdminToast(result) {
+    let toast = document.getElementById('ffAdminToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'ffAdminToast';
+      toast.className = 'ff-admin-toast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = result && result.message ? result.message : 'Export complete.';
+    toast.classList.remove('is-error', 'is-visible');
+    if (result && !result.ok) toast.classList.add('is-error');
+    requestAnimationFrame(function () { toast.classList.add('is-visible'); });
+    clearTimeout(showAdminToast._timer);
+    showAdminToast._timer = setTimeout(function () {
+      toast.classList.remove('is-visible');
+    }, 3200);
+  }
+
+  function initAdminExportShortcut() {
+    const logo = document.querySelector('nav .nav-inner > .logo');
+    if (!logo) return;
+
+    let clickCount = 0;
+    let clickTimer = null;
+
+    logo.addEventListener('click', function () {
+      clickCount += 1;
+      clearTimeout(clickTimer);
+      clickTimer = setTimeout(function () { clickCount = 0; }, 700);
+      if (clickCount >= 3) {
+        clickCount = 0;
+        showAdminToast(window.exportLeadsToCSV());
+      }
+    });
+  }
+
+  initAdminExportShortcut();
+
+  window.getFleetForgeLeads = getLeads;
+
+  function updateProgress(step) {
+    progressSteps.forEach(function (el) {
+      const n = parseInt(el.getAttribute('data-step'), 10);
+      el.classList.remove('is-active', 'is-complete');
+      if (n < step) el.classList.add('is-complete');
+      if (n === step) el.classList.add('is-active');
+    });
+  }
+
+  function goToStep(step, instant) {
+    const prevStep = currentStep;
+    currentStep = step;
+
+    panels.forEach(function (panel) {
+      const n = parseInt(panel.getAttribute('data-panel'), 10);
+      panel.classList.remove('is-active', 'is-back');
+      if (n === step) {
+        panel.classList.add('is-active');
+        if (!instant && step < prevStep) panel.classList.add('is-back');
+      }
+    });
+
+    updateProgress(step);
+    btnBack.classList.toggle('is-visible', step > 1);
+    btnNext.textContent = step === TOTAL_STEPS ? 'Submit Request' : 'Continue â†’';
+    saveDraft();
+  }
+
+  function showSuccess() {
+    formWrap.classList.add('is-success');
+    successEl.classList.add('is-active');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+
+  function resetForm() {
+    form.reset();
+    currentStep = 1;
+    formWrap.classList.remove('is-success');
+    successEl.classList.remove('is-active');
+    panels.forEach(function (p, i) {
+      p.classList.remove('is-active', 'is-back');
+      if (i === 0) p.classList.add('is-active');
+    });
+    form.querySelectorAll('.strategy-field').forEach(function (f) {
+      f.classList.remove('has-error');
+    });
+    updateProgress(1);
+    btnBack.classList.remove('is-visible');
+    btnNext.textContent = 'Continue â†’';
+    btnNext.classList.remove('is-loading');
+    btnNext.disabled = false;
+  }
+
+  function openModal() {
+    loadDraft();
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeModal() {
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    saveDraft();
+  }
+
+  function submitForm() {
+    btnNext.classList.add('is-loading');
+    btnNext.disabled = true;
+
+    const data = collectFormData();
+    const lead = {
+      id: 'lead_' + Date.now(),
+      timestamp: new Date().toISOString(),
+      name: data.fullName,
+      company: data.company,
+      email: data.email,
+      whatsapp: data.whatsapp,
+      businessType: data.businessType,
+      fleetSize: data.fleetSize,
+      challenges: data.challenges,
+      currentSoftware: data.currentSoftware || '',
+      budget: data.budget,
+      timeline: data.timeline,
+      notes: data.notes || ''
+    };
+
+    setTimeout(function () {
+      saveLead(lead);
+      clearDraft();
+      btnNext.classList.remove('is-loading');
+      btnNext.disabled = false;
+      showSuccess();
+    }, 900);
+  }
+
+  document.querySelectorAll('.js-open-strategy-modal').forEach(function (trigger) {
+    trigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (successEl.classList.contains('is-active')) resetForm();
+      openModal();
+    });
+  });
+
+  btnNext.addEventListener('click', function () {
+    if (!validateStep(currentStep)) {
+      const firstError = form.querySelector('.strategy-field.has-error input, .strategy-field.has-error select, .strategy-field.has-error textarea');
+      if (firstError) firstError.focus();
+      return;
+    }
+    if (currentStep < TOTAL_STEPS) {
+      goToStep(currentStep + 1);
+      return;
+    }
+    if (validateStep(3)) submitForm();
+  });
+
+  btnBack.addEventListener('click', function () {
+    if (currentStep > 1) goToStep(currentStep - 1);
+  });
+
+  btnClose.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    closeModal();
+  });
+
+  if (modal) {
+    modal.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+  }
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closeModal();
+  });
+
+  if (modalBody) {
+    modalBody.addEventListener('wheel', function (e) {
+      e.stopPropagation();
+    }, { passive: true });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeModal();
+  });
+
+  fieldIds.forEach(function (id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', saveDraft);
+    el.addEventListener('change', saveDraft);
+    el.addEventListener('blur', function () {
+      const name = el.getAttribute('name');
+      if (name) validateField(name);
+    });
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    btnNext.click();
+  });
+})();
+</script>
+</body>
+</html>
